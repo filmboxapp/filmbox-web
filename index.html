@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FilmBox - Películas y Series</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-text">FilmBox</span>
+                </div>
+                <div class="search-container">
+                    <input 
+                        type="text" 
+                        id="search-input" 
+                        class="search-input" 
+                        placeholder="Buscar películas y series..."
+                    >
+                    <button class="search-btn">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="header-actions">
+                    <button class="theme-toggle" id="theme-toggle">
+                        <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Featured Section -->
+            <section class="featured-section">
+                <div class="featured-carousel" id="featured-carousel">
+                    <div class="featured-item" id="featured-template" style="display: none;">
+                        <div class="featured-image">
+                            <img src="" alt="" class="featured-img">
+                        </div>
+                        <div class="featured-info">
+                            <h2 class="featured-title"></h2>
+                            <p class="featured-description"></p>
+                            <div class="featured-meta">
+                                <span class="featured-year"></span>
+                                <span class="featured-rating"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Categories Section -->
+            <section class="categories-section">
+                <div class="section-header">
+                    <h3 class="section-title">Categorias</h3>
+                </div>
+                <div class="categories-list" id="categories-list"></div>
+            </section>
+
+            <!-- Movies Grid -->
+            <section class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Peliculas Destacadas</h3>
+                </div>
+                <div class="content-grid" id="movies-grid"></div>
+            </section>
+
+            <!-- Series Grid -->
+            <section class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Series en Tendencia</h3>
+                </div>
+                <div class="content-grid" id="series-grid"></div>
+            </section>
+
+            <!-- Search Results -->
+            <section class="content-section" id="search-results-section" style="display: none;">
+                <div class="section-header">
+                    <h3 class="section-title">Resultados de Busqueda</h3>
+                </div>
+                <div class="content-grid" id="search-results-grid"></div>
+            </section>
+        </main>
+
+        <!-- Detail Modal -->
+        <div class="modal" id="detail-modal">
+            <div class="modal-overlay" id="modal-overlay"></div>
+            <div class="modal-content">
+                <button class="modal-close">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+                <div class="modal-body">
+                    <div class="detail-container" id="detail-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html>
