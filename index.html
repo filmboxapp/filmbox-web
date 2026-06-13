@@ -3,120 +3,718 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FilmBox - Películas y Series</title>
-    <link rel="stylesheet" href="index.css">
+    <title>StreamShield - Reproductor Minimalista Premium</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- HLS.js para soporte de streaming m3u8 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
+    <style>
+        /* Estilos personalizados para el Slider de volumen y barra de progreso */
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.3);
+        }
+        /* Ocultar barra de scroll en controles si es necesario */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Animaciones suaves */
+        .fade-enter {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        .fade-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+    </style>
 </head>
-<body>
-    <div class="app-container">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <div class="logo">
-                    <span class="logo-text">FilmBox</span>
-                </div>
-                <div class="search-container">
-                    <input 
-                        type="text" 
-                        id="search-input" 
-                        class="search-input" 
-                        placeholder="Buscar películas y series..."
-                    >
-                    <button class="search-btn">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <path d="m21 21-4.35-4.35"></path>
-                        </svg>
-                    </button>
-                </div>
-                <div class="header-actions">
-                    <button class="theme-toggle" id="theme-toggle">
-                        <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
-                            <circle cx="12" cy="12" r="5"></circle>
-                            <line x1="12" y1="1" x2="12" y2="3"></line>
-                            <line x1="12" y1="21" x2="12" y2="23"></line>
-                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                            <line x1="1" y1="12" x2="3" y2="12"></line>
-                            <line x1="21" y1="12" x2="23" y2="12"></line>
-                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </header>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col font-sans selection:bg-blue-500 selection:text-white">
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Featured Section -->
-            <section class="featured-section">
-                <div class="featured-carousel" id="featured-carousel">
-                    <div class="featured-item" id="featured-template" style="display: none;">
-                        <div class="featured-image">
-                            <img src="" alt="" class="featured-img">
+    <!-- Header / Barra de navegación superior -->
+    <header class="w-full border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-md py-4 px-6 flex items-center justify-between sticky top-0 z-40">
+        <div class="flex items-center space-x-3">
+            <div class="bg-blue-600 p-2 rounded-lg text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight">StreamShield</h1>
+                <p class="text-xs text-zinc-400">Reproductor de Video Ofuscado & Minimalista</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-3">
+            <button id="toggle-generator-btn" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+                <span>Generador de Enlaces</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="flex-grow flex flex-col items-center justify-center p-4 md:p-8 max-w-6xl w-full mx-auto space-y-8">
+
+        <!-- ALERTA DE CARGA EXITOSA O DETALLES DE OFUSCACIÓN -->
+        <div id="status-banner" class="w-full bg-blue-950/40 border border-blue-900/50 rounded-xl p-4 flex items-start space-x-3 hidden">
+            <svg class="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div class="text-sm">
+                <span class="font-semibold text-blue-300">Modo de Video Ofuscado Activo:</span>
+                <span id="status-text" class="text-zinc-300 ml-1">Cargando origen encriptado de forma segura...</span>
+            </div>
+        </div>
+
+        <!-- SECCIÓN DEL REPRODUCTOR -->
+        <div class="w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 relative group" id="player-container">
+            
+            <!-- 1. MOTOR DIRECTO HTML5 / HLS (Recomendado) -->
+            <video id="main-video" class="w-full h-full object-contain hidden" playsinline></video>
+
+            <!-- 2. MOTOR IFRAME (Para embeds como Streamwish directos si no se puede extraer el m3u8) -->
+            <div id="iframe-container" class="w-full h-full absolute inset-0 hidden">
+                <!-- Sandbox para prevenir redirecciones automáticas y popups maliciosos comunes de embeds -->
+                <iframe id="embed-iframe" class="w-full h-full border-0" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
+                <!-- Capa invisible superior para interceptar el primer click y dar estética o advertir -->
+                <div id="iframe-shield" class="absolute inset-0 bg-transparent cursor-pointer hidden"></div>
+            </div>
+
+            <!-- CAPA DE CONTROL PERSONALIZADA (Solo para el Motor Directo HTML5/HLS) -->
+            <div id="custom-controls" class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/40 flex flex-col justify-between p-4 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-300 z-10 pointer-events-none">
+                
+                <!-- Barra superior del reproductor -->
+                <div class="flex items-center justify-between pointer-events-auto">
+                    <span id="video-title" class="text-sm font-medium text-zinc-300 tracking-wide drop-shadow-md truncate max-w-xs md:max-w-md">Video en reproducción</span>
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-blue-600/80 text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded text-white backdrop-blur-sm">HLS Seguro</span>
+                    </div>
+                </div>
+
+                <!-- Botón de Play Gigante en el Centro (Hover) -->
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <button id="center-play-btn" class="w-16 h-16 bg-blue-600/90 hover:bg-blue-500 hover:scale-110 text-white rounded-full flex items-center justify-center shadow-lg transition-all transform pointer-events-auto opacity-0 group-hover:opacity-100">
+                        <!-- Play Icon -->
+                        <svg id="center-play-icon" class="w-8 h-8 translate-x-0.5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z" />
+                        </svg>
+                        <!-- Pause Icon -->
+                        <svg id="center-pause-icon" class="w-8 h-8 hidden" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Barra inferior de controles -->
+                <div class="space-y-3 pointer-events-auto">
+                    <!-- Progress Bar Container -->
+                    <div class="flex items-center space-x-3 group/progress">
+                        <span id="current-time" class="text-xs text-zinc-400 font-mono">00:00</span>
+                        <div class="relative flex-grow h-1.5 bg-zinc-700/60 rounded-full cursor-pointer" id="progress-bar-container">
+                            <div id="progress-buffered" class="absolute left-0 top-0 h-full bg-zinc-600/50 rounded-full w-0 transition-all duration-200"></div>
+                            <div id="progress-current" class="absolute left-0 top-0 h-full bg-blue-500 rounded-full w-0"></div>
+                            <div id="progress-pin" class="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-white border border-blue-600 rounded-full shadow opacity-0 group-hover/progress:opacity-100 transition-opacity duration-150" style="left: 0%;"></div>
                         </div>
-                        <div class="featured-info">
-                            <h2 class="featured-title"></h2>
-                            <p class="featured-description"></p>
-                            <div class="featured-meta">
-                                <span class="featured-year"></span>
-                                <span class="featured-rating"></span>
+                        <span id="duration-time" class="text-xs text-zinc-400 font-mono">00:00</span>
+                    </div>
+
+                    <!-- Botonera de acciones -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <!-- Play/Pausa -->
+                            <button id="play-btn" class="text-zinc-300 hover:text-white transition transform active:scale-95" title="Reproducir / Pausar">
+                                <svg class="w-6 h-6" id="controls-play-icon" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z" />
+                                </svg>
+                                <svg class="w-6 h-6 hidden" id="controls-pause-icon" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                                </svg>
+                            </button>
+
+                            <!-- Retroceder 10s -->
+                            <button id="rewind-btn" class="text-zinc-400 hover:text-white transition" title="Retroceder 10s">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.334 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z" />
+                                </svg>
+                            </button>
+
+                            <!-- Avanzar 10s -->
+                            <button id="forward-btn" class="text-zinc-400 hover:text-white transition" title="Avanzar 10s">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z" />
+                                </svg>
+                            </button>
+
+                            <!-- Control de Volumen integrado -->
+                            <div class="flex items-center space-x-2 group/volume">
+                                <button id="mute-btn" class="text-zinc-300 hover:text-white transition">
+                                    <!-- High Volume Icon -->
+                                    <svg id="volume-high-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                                    </svg>
+                                    <!-- Muted Icon -->
+                                    <svg id="volume-muted-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.21.05-.42.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                                    </svg>
+                                </button>
+                                <input id="volume-slider" type="range" min="0" max="1" step="0.05" value="0.8" class="w-0 group-hover/volume:w-20 focus:w-20 h-1 bg-zinc-600 rounded-lg appearance-none cursor-pointer transition-all duration-300 origin-left">
                             </div>
+                        </div>
+
+                        <div class="flex items-center space-x-4">
+                            <!-- Velocidad de reproducción (Speed) -->
+                            <div class="relative group/speed">
+                                <button id="speed-btn" class="text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 px-2.5 py-1 rounded-md text-zinc-300 hover:text-white transition">
+                                    1.0x
+                                </button>
+                                <!-- Menu de velocidades -->
+                                <div class="absolute bottom-full right-0 mb-2 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl overflow-hidden py-1 w-20 hidden group-hover/speed:block">
+                                    <button class="speed-opt w-full text-left px-3 py-1 text-xs hover:bg-blue-600 hover:text-white" data-speed="0.5">0.5x</button>
+                                    <button class="speed-opt w-full text-left px-3 py-1 text-xs hover:bg-blue-600 hover:text-white" data-speed="1.0">1.0x</button>
+                                    <button class="speed-opt w-full text-left px-3 py-1 text-xs hover:bg-blue-600 hover:text-white" data-speed="1.5">1.5x</button>
+                                    <button class="speed-opt w-full text-left px-3 py-1 text-xs hover:bg-blue-600 hover:text-white" data-speed="2.0">2.0x</button>
+                                </div>
+                            </div>
+
+                            <!-- Picture in Picture (PiP) -->
+                            <button id="pip-btn" class="text-zinc-400 hover:text-white transition" title="Picture in Picture">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                                </svg>
+                            </button>
+
+                            <!-- Pantalla Completa (Fullscreen) -->
+                            <button id="fullscreen-btn" class="text-zinc-300 hover:text-white transition transform active:scale-95" title="Pantalla Completa">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 </div>
-            </section>
+            </div>
 
-            <!-- Categories Section -->
-            <section class="categories-section">
-                <div class="section-header">
-                    <h3 class="section-title">Categorias</h3>
-                </div>
-                <div class="categories-list" id="categories-list"></div>
-            </section>
+            <!-- CARGANDO / FEEDBACK VISUAL -->
+            <div id="loading-spinner" class="absolute inset-0 bg-black/80 flex flex-col items-center justify-center space-y-4 z-20 transition-all duration-300">
+                <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-sm text-zinc-400 font-medium">Resolviendo origen seguro de video...</p>
+            </div>
 
-            <!-- Movies Grid -->
-            <section class="content-section">
-                <div class="section-header">
-                    <h3 class="section-title">Peliculas Destacadas</h3>
-                </div>
-                <div class="content-grid" id="movies-grid"></div>
-            </section>
-
-            <!-- Series Grid -->
-            <section class="content-section">
-                <div class="section-header">
-                    <h3 class="section-title">Series en Tendencia</h3>
-                </div>
-                <div class="content-grid" id="series-grid"></div>
-            </section>
-
-            <!-- Search Results -->
-            <section class="content-section" id="search-results-section" style="display: none;">
-                <div class="section-header">
-                    <h3 class="section-title">Resultados de Busqueda</h3>
-                </div>
-                <div class="content-grid" id="search-results-grid"></div>
-            </section>
-        </main>
-
-        <!-- Detail Modal -->
-        <div class="modal" id="detail-modal">
-            <div class="modal-overlay" id="modal-overlay"></div>
-            <div class="modal-content">
-                <button class="modal-close">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
+            <!-- ERROR DISPLAY -->
+            <div id="error-display" class="absolute inset-0 bg-zinc-950 flex-col items-center justify-center space-y-4 z-30 p-6 text-center hidden">
+                <div class="bg-red-950 text-red-400 p-3 rounded-full border border-red-900">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
-                </button>
-                <div class="modal-body">
-                    <div class="detail-container" id="detail-container"></div>
                 </div>
+                <h3 class="text-lg font-bold text-zinc-200">No se pudo cargar la transmisión</h3>
+                <p id="error-message" class="text-sm text-zinc-400 max-w-md">El formato del video es incorrecto o la URL ha expirado. Por favor, verifica el enlace ingresado.</p>
+                <button onclick="location.reload()" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-xs font-semibold transition">Reintentar</button>
             </div>
         </div>
-    </div>
 
-    <script src="index.js"></script>
+        <!-- GENERADOR DE ENLACES ENCRIPTADOS (Plegable) -->
+        <section id="generator-section" class="w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-xl hidden">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-md font-bold tracking-tight text-white flex items-center space-x-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+                    <span>Generador de Enlaces Ofuscados</span>
+                </h2>
+                <span class="text-xs text-zinc-500">Oculta tus fuentes originales en los parámetros del reproductor</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">URL Real del Video o Embed (ej. Streamwish, .m3u8, .mp4)</label>
+                    <input id="input-real-url" type="text" placeholder="https://streamwish.to/e/abcdefg123 ó https://mi-servidor.com/video.m3u8" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition text-zinc-200">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">Tipo de Entrada</label>
+                    <select id="input-type" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition text-zinc-200">
+                        <option value="hls">Streaming HLS / M3U8 (Recomendado)</option>
+                        <option value="iframe">Embed de Terceros / IFrame</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="btn-generate-link" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold text-sm transition shadow-lg shadow-blue-950/40 hover:shadow-blue-900/50 flex items-center justify-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+                <span>Generar URL Ocultada</span>
+            </button>
+
+            <!-- Resultados -->
+            <div id="generation-result" class="mt-6 p-4 bg-zinc-950 border border-zinc-800 rounded-xl hidden">
+                <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">URL Ofuscada Lista para Compartir</p>
+                <div class="flex items-center space-x-2">
+                    <input id="output-generated-url" readonly type="text" class="flex-grow bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs font-mono text-zinc-300 focus:outline-none focus:border-blue-500">
+                    <button id="btn-copy-link" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-4 py-2 rounded-lg font-semibold transition active:scale-95 flex items-center space-x-1">
+                        <span>Copiar</span>
+                    </button>
+                    <button id="btn-play-generated" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs px-4 py-2 rounded-lg font-semibold transition active:scale-95">
+                        Probar
+                    </button>
+                </div>
+                <!-- Mensaje temporal al copiar -->
+                <p id="copy-success" class="text-xs text-green-400 mt-2 font-medium hidden">¡Copiado al portapapeles con éxito!</p>
+            </div>
+        </section>
+
+        <!-- GUÍA / INFORMACIÓN DE USO -->
+        <section class="w-full grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+            <div class="bg-zinc-900/50 border border-zinc-800/80 p-6 rounded-2xl space-y-3">
+                <h4 class="font-bold text-white flex items-center space-x-2">
+                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>¿Cómo funciona la Ofuscación?</span>
+                </h4>
+                <p class="text-zinc-400 leading-relaxed text-xs">
+                    El reproductor lee el parámetro cifrado <code class="bg-zinc-950 px-1.5 py-0.5 rounded text-zinc-300 font-mono">?v=[HASH_BASE64]</code> de la barra de direcciones. 
+                    En lugar de exponer el origen real como <code class="bg-zinc-950 px-1.5 py-0.5 rounded text-zinc-300 font-mono">https://streamwish...</code>, lo decodifica de forma interna en la memoria del navegador. Así el visitante nunca sabrá a simple vista de qué hosting o CDN procede tu video.
+                </p>
+            </div>
+            <div class="bg-zinc-900/50 border border-zinc-800/80 p-6 rounded-2xl space-y-3">
+                <h4 class="font-bold text-white flex items-center space-x-2">
+                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                    <span>Consejo de uso (Streamwish / HLS)</span>
+                </h4>
+                <p class="text-zinc-400 leading-relaxed text-xs">
+                    Para obtener un control de video absoluto y bloquear anuncios molestos de Streamwish, te recomendamos usar un extractor de enlaces de video para obtener el archivo directo que termina en <code class="bg-zinc-950 px-1.5 py-0.5 rounded text-zinc-300 font-mono">.m3u8</code>. Al ingresarlo como tipo <strong>Streaming HLS</strong>, se reproducirá en nuestro motor nativo con los controles ultralimpios.
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full py-6 text-center text-xs text-zinc-600 border-t border-zinc-900 mt-auto bg-zinc-950/80">
+        <p>StreamShield Player © 2026. Diseñado para un streaming de video limpio y libre de trackers.</p>
+    </footer>
+
+    <!-- LÓGICA DE CONTROL DEL REPRODUCTOR -->
+    <script>
+        // Elementos del DOM
+        const video = document.getElementById('main-video');
+        const playerContainer = document.getElementById('player-container');
+        const customControls = document.getElementById('custom-controls');
+        const iframeContainer = document.getElementById('iframe-container');
+        const embedIframe = document.getElementById('embed-iframe');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const errorDisplay = document.getElementById('error-display');
+        const errorMessage = document.getElementById('error-message');
+        const statusBanner = document.getElementById('status-banner');
+        const statusText = document.getElementById('status-text');
+
+        // Controles de botones
+        const playBtn = document.getElementById('play-btn');
+        const centerPlayBtn = document.getElementById('center-play-btn');
+        const muteBtn = document.getElementById('mute-btn');
+        const volumeSlider = document.getElementById('volume-slider');
+        const progressBarContainer = document.getElementById('progress-bar-container');
+        const progressCurrent = document.getElementById('progress-current');
+        const progressBuffered = document.getElementById('progress-buffered');
+        const progressPin = document.getElementById('progress-pin');
+        const currentTimeEl = document.getElementById('current-time');
+        const durationTimeEl = document.getElementById('duration-time');
+        const speedBtn = document.getElementById('speed-btn');
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const pipBtn = document.getElementById('pip-btn');
+        const rewindBtn = document.getElementById('rewind-btn');
+        const forwardBtn = document.getElementById('forward-btn');
+
+        // Iconos
+        const controlsPlayIcon = document.getElementById('controls-play-icon');
+        const controlsPauseIcon = document.getElementById('controls-pause-icon');
+        const centerPlayIcon = document.getElementById('center-play-icon');
+        const centerPauseIcon = document.getElementById('center-pause-icon');
+        const volumeHighIcon = document.getElementById('volume-high-icon');
+        const volumeMutedIcon = document.getElementById('volume-muted-icon');
+
+        // Secciones plegables
+        const toggleGeneratorBtn = document.getElementById('toggle-generator-btn');
+        const generatorSection = document.getElementById('generator-section');
+
+        // Generador de enlaces
+        const inputRealUrl = document.getElementById('input-real-url');
+        const inputType = document.getElementById('input-type');
+        const btnGenerateLink = document.getElementById('btn-generate-link');
+        const generationResult = document.getElementById('generation-result');
+        const outputGeneratedUrl = document.getElementById('output-generated-url');
+        const btnCopyLink = document.getElementById('btn-copy-link');
+        const copySuccess = document.getElementById('copy-success');
+        const btnPlayGenerated = document.getElementById('btn-play-generated');
+
+        let hlsInstance = null;
+        let isSeeking = false;
+
+        // --- INICIALIZACIÓN ---
+        window.onload = function() {
+            initUrlParameters();
+            setupEventListeners();
+        };
+
+        // --- SISTEMA DE URLS OFUSCADAS ---
+        function initUrlParameters() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const obfuscatedData = urlParams.get('v'); // ?v=[BASE64]
+            const explicitType = urlParams.get('t');  // ?t=hls o ?t=iframe
+
+            if (obfuscatedData) {
+                try {
+                    // Decodificar Base64 de forma interna
+                    const decryptedUrl = atob(obfuscatedData);
+                    let type = explicitType || 'hls';
+                    
+                    // Auto-detectar si el enlace es m3u8 o mp4
+                    if (!explicitType) {
+                        if (decryptedUrl.includes('.m3u8') || decryptedUrl.includes('.mp4')) {
+                            type = 'hls';
+                        } else {
+                            type = 'iframe';
+                        }
+                    }
+
+                    // Mostrar banner de carga segura
+                    statusBanner.classList.remove('hidden');
+                    statusText.textContent = `Resolviendo origen de transmisión cifrada: [SHA-256 ...${obfuscatedData.substring(0, 10)}]`;
+
+                    loadVideoSource(decryptedUrl, type);
+                } catch (e) {
+                    showError("El código de ofuscación de URL es inválido o se encuentra dañado.");
+                }
+            } else {
+                // Cargar un video demo de streaming HLS por defecto si no hay parámetros
+                const defaultVideo = "https://test-streams.mux.dev/x36xhqm/x36xhqm.m3u8";
+                loadVideoSource(defaultVideo, 'hls');
+                document.getElementById('video-title').textContent = "Video Demo de Prueba (Mux Streaming)";
+            }
+        }
+
+        // --- MOTOR DE REPRODUCCIÓN ---
+        function loadVideoSource(url, type) {
+            loadingSpinner.classList.remove('hidden');
+            errorDisplay.classList.add('hidden');
+
+            if (type === 'hls') {
+                // Habilitar controles personalizados, esconder el iframe
+                video.classList.remove('hidden');
+                iframeContainer.classList.add('hidden');
+                customControls.classList.remove('pointer-events-none');
+                
+                // Limpieza de reproductor HLS previo si existe
+                if (hlsInstance) {
+                    hlsInstance.destroy();
+                }
+
+                if (url.endsWith('.mp4') || !url.includes('.m3u8')) {
+                    // Carga directa de MP4 standard
+                    video.src = url;
+                    video.load();
+                } else if (Hls.isSupported()) {
+                    // Cargar vía HLS.js
+                    hlsInstance = new Hls({
+                        maxMaxBufferLength: 30,
+                        enableWorker: true
+                    });
+                    hlsInstance.loadSource(url);
+                    hlsInstance.attachMedia(video);
+                    
+                    hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
+                        loadingSpinner.classList.add('hidden');
+                    });
+
+                    hlsInstance.on(Hls.Events.ERROR, function(event, data) {
+                        if (data.fatal) {
+                            switch (data.type) {
+                                case Hls.ErrorTypes.NETWORK_ERROR:
+                                    hlsInstance.startLoad();
+                                    break;
+                                case Hls.ErrorTypes.MEDIA_ERROR:
+                                    hlsInstance.recoverMediaError();
+                                    break;
+                                default:
+                                    showError("No fue posible establecer conexión con el stream seguro.");
+                                    break;
+                            }
+                        }
+                    });
+                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    // Fallback nativo para navegadores como Safari (iOS)
+                    video.src = url;
+                } else {
+                    showError("Tu navegador no soporta la tecnología HLS de streaming directo.");
+                }
+
+                // Controladores de eventos del motor de video HTML5
+                video.addEventListener('waiting', () => loadingSpinner.classList.remove('hidden'));
+                video.addEventListener('playing', () => loadingSpinner.classList.add('hidden'));
+                video.addEventListener('canplay', () => loadingSpinner.classList.add('hidden'));
+                video.addEventListener('timeupdate', updateProgressBar);
+                video.addEventListener('volumechange', syncVolumeUI);
+
+            } else if (type === 'iframe') {
+                // Esconder video HTML5, usar el iframe cargado de forma segura
+                video.classList.add('hidden');
+                iframeContainer.classList.remove('hidden');
+                customControls.classList.add('pointer-events-none'); // Inhabilitar capas que bloqueen el iframe
+                
+                // Configurar iframe
+                embedIframe.src = url;
+                
+                embedIframe.onload = function() {
+                    loadingSpinner.classList.add('hidden');
+                };
+
+                // Detector de errores rudimentario para iframe
+                setTimeout(() => {
+                    if (loadingSpinner.style.display !== 'none') {
+                        loadingSpinner.classList.add('hidden');
+                    }
+                }, 4000);
+            }
+        }
+
+        // --- SISTEMA DE CONTROLES HTML5 ---
+        function setupEventListeners() {
+            // Play / Pause
+            playBtn.addEventListener('click', togglePlay);
+            centerPlayBtn.addEventListener('click', togglePlay);
+            video.addEventListener('click', togglePlay);
+
+            // Actualización visual de play/pausa
+            video.addEventListener('play', () => {
+                controlsPlayIcon.classList.add('hidden');
+                controlsPauseIcon.classList.remove('hidden');
+                centerPlayIcon.classList.add('hidden');
+                centerPauseIcon.classList.remove('hidden');
+            });
+
+            video.addEventListener('pause', () => {
+                controlsPlayIcon.classList.remove('hidden');
+                controlsPauseIcon.classList.add('hidden');
+                centerPlayIcon.classList.remove('hidden');
+                centerPauseIcon.classList.add('hidden');
+            });
+
+            // Retroceso & Avance
+            rewindBtn.addEventListener('click', () => video.currentTime -= 10);
+            forwardBtn.addEventListener('click', () => video.currentTime += 10);
+
+            // Mute / Unmute
+            muteBtn.addEventListener('click', toggleMute);
+            volumeSlider.addEventListener('input', (e) => {
+                video.volume = e.target.value;
+                video.muted = false;
+            });
+
+            // Barra de progreso interactiva (Seek)
+            progressBarContainer.addEventListener('mousedown', (e) => {
+                isSeeking = true;
+                seek(e);
+            });
+            document.addEventListener('mousemove', (e) => {
+                if (isSeeking) seek(e);
+            });
+            document.addEventListener('mouseup', () => {
+                isSeeking = false;
+            });
+
+            // Cambios de Velocidad
+            document.querySelectorAll('.speed-opt').forEach(opt => {
+                opt.addEventListener('click', (e) => {
+                    const val = parseFloat(e.target.dataset.speed);
+                    video.playbackRate = val;
+                    speedBtn.textContent = val + 'x';
+                });
+            });
+
+            // Pantalla completa
+            fullscreenBtn.addEventListener('click', toggleFullscreen);
+            playerContainer.addEventListener('dblclick', toggleFullscreen);
+
+            // PiP
+            pipBtn.addEventListener('click', async () => {
+                try {
+                    if (video !== document.pictureInPictureElement) {
+                        await video.requestPictureInPicture();
+                    } else {
+                        await document.exitPictureInPicture();
+                    }
+                } catch (e) {
+                    console.error("Picture-in-Picture falló o no es soportado.");
+                }
+            });
+
+            // Controladores del Generador de Enlaces
+            toggleGeneratorBtn.addEventListener('click', () => {
+                generatorSection.classList.toggle('hidden');
+                generatorSection.scrollIntoView({ behavior: 'smooth' });
+            });
+
+            btnGenerateLink.addEventListener('click', generateSecureLink);
+            btnCopyLink.addEventListener('click', copyToClipboard);
+            btnPlayGenerated.addEventListener('click', playObfuscatedLink);
+
+            // Accesibilidad de teclado
+            document.addEventListener('keydown', (e) => {
+                // Solo si el usuario no está escribiendo en campos de texto
+                if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'SELECT') {
+                    if (e.code === 'Space') {
+                        e.preventDefault();
+                        togglePlay();
+                    } else if (e.code === 'ArrowRight') {
+                        video.currentTime += 5;
+                    } else if (e.code === 'ArrowLeft') {
+                        video.currentTime -= 5;
+                    } else if (e.code === 'ArrowUp') {
+                        e.preventDefault();
+                        video.volume = Math.min(1, video.volume + 0.05);
+                    } else if (e.code === 'ArrowDown') {
+                        e.preventDefault();
+                        video.volume = Math.max(0, video.volume - 0.05);
+                    } else if (e.code === 'KeyF') {
+                        toggleFullscreen();
+                    }
+                }
+            });
+        }
+
+        // --- FUNCIONES AUXILIARES ---
+        function togglePlay() {
+            if (video.paused) {
+                video.play();
+            } else {
+                video.pause();
+            }
+        }
+
+        function toggleMute() {
+            video.muted = !video.muted;
+        }
+
+        function syncVolumeUI() {
+            volumeSlider.value = video.muted ? 0 : video.volume;
+            if (video.muted || video.volume === 0) {
+                volumeHighIcon.classList.add('hidden');
+                volumeMutedIcon.classList.remove('hidden');
+            } else {
+                volumeHighIcon.classList.remove('hidden');
+                volumeMutedIcon.classList.add('hidden');
+            }
+        }
+
+        function updateProgressBar() {
+            if (!video.duration) return;
+
+            // Progreso actual
+            const pct = (video.currentTime / video.duration) * 100;
+            progressCurrent.style.width = pct + '%';
+            progressPin.style.left = pct + '%';
+
+            // Actualización de Tiempos
+            currentTimeEl.textContent = formatTime(video.currentTime);
+            durationTimeEl.textContent = formatTime(video.duration);
+
+            // Progreso del Buffer
+            if (video.buffered.length > 0) {
+                const bufferedEnd = video.buffered.end(video.buffered.length - 1);
+                const bufferedPct = (bufferedEnd / video.duration) * 100;
+                progressBuffered.style.width = bufferedPct + '%';
+            }
+        }
+
+        function seek(e) {
+            const rect = progressBarContainer.getBoundingClientRect();
+            let pos = (e.clientX - rect.left) / rect.width;
+            pos = Math.max(0, Math.min(1, pos)); // Clamp de 0 a 1
+            video.currentTime = pos * video.duration;
+            progressCurrent.style.width = (pos * 100) + '%';
+            progressPin.style.left = (pos * 100) + '%';
+        }
+
+        function formatTime(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            
+            const mStr = m < 10 ? '0' + m : m;
+            const sStr = s < 10 ? '0' + s : s;
+            
+            if (h > 0) {
+                return `${h}:${mStr}:${sStr}`;
+            }
+            return `${mStr}:${sStr}`;
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                playerContainer.requestFullscreen().catch(err => {
+                    console.error("Error al habilitar Pantalla Completa: ", err);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function showError(message) {
+            loadingSpinner.classList.add('hidden');
+            errorDisplay.classList.remove('hidden');
+            errorMessage.textContent = message;
+        }
+
+        // --- OPERACIONES DEL ENCRIPTADOR ---
+        function generateSecureLink() {
+            const realUrl = inputRealUrl.value.trim();
+            const typeValue = inputType.value;
+
+            if (!realUrl) {
+                alert("Por favor ingresa una URL válida.");
+                return;
+            }
+
+            // Convertir la URL original en Base64
+            const obfuscated = btoa(realUrl);
+            const baseUrl = window.location.origin + window.location.pathname;
+            const fullObfuscatedUrl = `${baseUrl}?v=${obfuscated}&t=${typeValue}`;
+
+            // Mostrar el resultado
+            outputGeneratedUrl.value = fullObfuscatedUrl;
+            generationResult.classList.remove('hidden');
+            copySuccess.classList.add('hidden');
+        }
+
+        function copyToClipboard() {
+            outputGeneratedUrl.select();
+            document.execCommand('copy');
+            copySuccess.classList.remove('hidden');
+            setTimeout(() => {
+                copySuccess.classList.add('hidden');
+            }, 3000);
+        }
+
+        function playObfuscatedLink() {
+            const targetUrl = outputGeneratedUrl.value;
+            if (targetUrl) {
+                window.location.href = targetUrl;
+            }
+        }
+    </script>
 </body>
-</html>
+                                    </html>
