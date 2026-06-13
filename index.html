@@ -3,203 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StreamShield - Reproductor Minimalista Premium</title>
+    <title>StreamShield - Ultra Player & Obfuscator</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- HLS.js para soporte de streaming m3u8 -->
+    <!-- HLS.js para m3u8 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
     <style>
-        /* Estilos personalizados para el Slider de volumen y barra de progreso */
+        /* Deslizador de volumen y progreso personalizado */
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 12px;
-            height: 12px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
-            background: #3b82f6;
+            background: #2563eb;
             cursor: pointer;
-            transition: transform 0.1s ease;
+            transition: transform 0.1s ease, background-color 0.1s ease;
         }
         input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.3);
+            transform: scale(1.2);
+            background: #3b82f6;
         }
-        /* Ocultar barra de scroll en controles si es necesario */
+        /* Ocultar scrollbar */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
-        /* Animaciones suaves */
-        .fade-enter {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        .fade-enter-active {
-            opacity: 1;
-            transform: translateY(0);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
     </style>
 </head>
-<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col font-sans selection:bg-blue-500 selection:text-white">
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white">
 
-    <!-- Header / Barra de navegación superior -->
-    <header class="w-full border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-md py-4 px-6 flex items-center justify-between sticky top-0 z-40">
+    <!-- Encabezado Principal -->
+    <header class="w-full border-b border-zinc-900 bg-zinc-950/80 backdrop-blur-md py-4 px-6 flex items-center justify-between sticky top-0 z-50">
         <div class="flex items-center space-x-3">
-            <div class="bg-blue-600 p-2 rounded-lg text-white">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+            <div class="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-900/30">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
             </div>
             <div>
-                <h1 class="text-lg font-bold tracking-tight">StreamShield</h1>
-                <p class="text-xs text-zinc-400">Reproductor de Video Ofuscado & Minimalista</p>
+                <h1 class="text-md font-extrabold tracking-tight text-white">StreamShield <span class="text-blue-500 text-xs font-medium px-1.5 py-0.5 bg-blue-950/50 border border-blue-900/30 rounded ml-2">V2.5</span></h1>
+                <p class="text-[10px] text-zinc-400">Protección de origen y reproducción unificada sin anuncios externos</p>
             </div>
         </div>
-        <div class="flex items-center space-x-3">
-            <button id="toggle-generator-btn" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition flex items-center space-x-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+        <div>
+            <button id="toggle-generator" class="bg-zinc-900 hover:bg-zinc-800 text-zinc-200 hover:text-white px-4 py-2 rounded-xl text-xs font-semibold transition-all border border-zinc-800 flex items-center space-x-2">
+                <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                 </svg>
-                <span>Generador de Enlaces</span>
+                <span>Ofuscar Nuevo Enlace</span>
             </button>
         </div>
     </header>
 
-    <!-- Contenido Principal -->
-    <main class="flex-grow flex flex-col items-center justify-center p-4 md:p-8 max-w-6xl w-full mx-auto space-y-8">
+    <!-- Contenedor Principal -->
+    <main class="flex-grow flex flex-col items-center justify-center p-4 md:p-8 max-w-5xl w-full mx-auto space-y-6">
 
-        <!-- ALERTA DE CARGA EXITOSA O DETALLES DE OFUSCACIÓN -->
-        <div id="status-banner" class="w-full bg-blue-950/40 border border-blue-900/50 rounded-xl p-4 flex items-start space-x-3 hidden">
-            <svg class="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <div class="text-sm">
-                <span class="font-semibold text-blue-300">Modo de Video Ofuscado Activo:</span>
-                <span id="status-text" class="text-zinc-300 ml-1">Cargando origen encriptado de forma segura...</span>
-            </div>
+        <!-- Banner de Estado de Enmascaramiento -->
+        <div id="mask-status" class="w-full bg-emerald-950/20 border border-emerald-900/30 rounded-2xl p-4 flex items-center space-x-3 hidden">
+            <span class="relative flex h-3 w-3">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+            </span>
+            <p class="text-xs text-emerald-400 font-medium">
+                Origen ocultado con éxito de la barra de navegación. Protegiendo fuente original de inspecciones básicas.
+            </p>
         </div>
 
-        <!-- SECCIÓN DEL REPRODUCTOR -->
-        <div class="w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 relative group" id="player-container">
+        <!-- REPRODUCTOR DE VIDEO UNIFICADO -->
+        <div id="player-container" class="w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-zinc-900 relative group">
             
-            <!-- 1. MOTOR DIRECTO HTML5 / HLS (Recomendado) -->
-            <video id="main-video" class="w-full h-full object-contain hidden" playsinline></video>
+            <!-- 1. MOTOR NATIVO (MP4 / HLS M3U8) -->
+            <video id="html5-video" class="w-full h-full object-contain hidden" playsinline></video>
 
-            <!-- 2. MOTOR IFRAME (Para embeds como Streamwish directos si no se puede extraer el m3u8) -->
-            <div id="iframe-container" class="w-full h-full absolute inset-0 hidden">
-                <!-- Sandbox para prevenir redirecciones automáticas y popups maliciosos comunes de embeds -->
-                <iframe id="embed-iframe" class="w-full h-full border-0" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
-                <!-- Capa invisible superior para interceptar el primer click y dar estética o advertir -->
-                <div id="iframe-shield" class="absolute inset-0 bg-transparent cursor-pointer hidden"></div>
+            <!-- 2. MOTOR EMULADO (IFrame Embeds con Escudo de Sandboxing) -->
+            <div id="embed-container" class="w-full h-full absolute inset-0 hidden bg-zinc-950">
+                <!-- allow-scripts y allow-same-origin son necesarios para que el reproductor de Streamwish cargue, pero omitimos allow-popups para evitar redirecciones y banners invasivos -->
+                <iframe id="embed-iframe" class="w-full h-full border-0" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"></iframe>
             </div>
 
-            <!-- CAPA DE CONTROL PERSONALIZADA (Solo para el Motor Directo HTML5/HLS) -->
-            <div id="custom-controls" class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/40 flex flex-col justify-between p-4 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-300 z-10 pointer-events-none">
+            <!-- CAPA DE CONTROLES PERSONALIZADOS (Solo activa para el motor nativo de video directo) -->
+            <div id="custom-controls" class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/30 flex flex-col justify-between p-4 md:p-6 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-300 z-10 pointer-events-none">
                 
-                <!-- Barra superior del reproductor -->
+                <!-- Barra Superior del Control -->
                 <div class="flex items-center justify-between pointer-events-auto">
-                    <span id="video-title" class="text-sm font-medium text-zinc-300 tracking-wide drop-shadow-md truncate max-w-xs md:max-w-md">Video en reproducción</span>
-                    <div class="flex items-center space-x-2">
-                        <span class="bg-blue-600/80 text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded text-white backdrop-blur-sm">HLS Seguro</span>
-                    </div>
+                    <span id="player-title" class="text-xs md:text-sm font-medium text-zinc-300 truncate max-w-sm">Cargando transmisión segura...</span>
+                    <span class="bg-blue-600 text-[9px] uppercase font-bold tracking-widest px-2 py-0.5 rounded text-white shadow-sm shadow-blue-950">Direct Play</span>
                 </div>
 
-                <!-- Botón de Play Gigante en el Centro (Hover) -->
+                <!-- Play/Pausa Central Gigante -->
                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <button id="center-play-btn" class="w-16 h-16 bg-blue-600/90 hover:bg-blue-500 hover:scale-110 text-white rounded-full flex items-center justify-center shadow-lg transition-all transform pointer-events-auto opacity-0 group-hover:opacity-100">
-                        <!-- Play Icon -->
-                        <svg id="center-play-icon" class="w-8 h-8 translate-x-0.5" fill="currentColor" viewBox="0 0 24 24">
+                    <button id="center-play" class="w-16 h-16 bg-blue-600 hover:bg-blue-500 hover:scale-105 text-white rounded-full flex items-center justify-center shadow-lg transition-all transform pointer-events-auto opacity-0 group-hover:opacity-100">
+                        <svg id="center-play-icon" class="w-6 h-6 translate-x-0.5" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M8 5v14l11-7z" />
                         </svg>
-                        <!-- Pause Icon -->
-                        <svg id="center-pause-icon" class="w-8 h-8 hidden" fill="currentColor" viewBox="0 0 24 24">
+                        <svg id="center-pause-icon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                         </svg>
                     </button>
                 </div>
 
-                <!-- Barra inferior de controles -->
-                <div class="space-y-3 pointer-events-auto">
-                    <!-- Progress Bar Container -->
-                    <div class="flex items-center space-x-3 group/progress">
-                        <span id="current-time" class="text-xs text-zinc-400 font-mono">00:00</span>
-                        <div class="relative flex-grow h-1.5 bg-zinc-700/60 rounded-full cursor-pointer" id="progress-bar-container">
-                            <div id="progress-buffered" class="absolute left-0 top-0 h-full bg-zinc-600/50 rounded-full w-0 transition-all duration-200"></div>
-                            <div id="progress-current" class="absolute left-0 top-0 h-full bg-blue-500 rounded-full w-0"></div>
-                            <div id="progress-pin" class="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-white border border-blue-600 rounded-full shadow opacity-0 group-hover/progress:opacity-100 transition-opacity duration-150" style="left: 0%;"></div>
+                <!-- Barra Inferior de Control de Tiempo y Acciones -->
+                <div class="space-y-4 pointer-events-auto">
+                    <!-- Progress Bar -->
+                    <div class="flex items-center space-x-3 group/timeline">
+                        <span id="time-current" class="text-[11px] font-mono text-zinc-400">00:00</span>
+                        <div id="timeline-container" class="relative flex-grow h-1 bg-zinc-800 rounded-full cursor-pointer hover:h-1.5 transition-all">
+                            <div id="timeline-buffered" class="absolute left-0 top-0 h-full bg-zinc-700/60 rounded-full w-0 transition-all"></div>
+                            <div id="timeline-progress" class="absolute left-0 top-0 h-full bg-blue-500 rounded-full w-0"></div>
+                            <div id="timeline-pin" class="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white border border-blue-600 rounded-full shadow opacity-0 group-hover/timeline:opacity-100 transition-opacity" style="left: 0%;"></div>
                         </div>
-                        <span id="duration-time" class="text-xs text-zinc-400 font-mono">00:00</span>
+                        <span id="time-duration" class="text-[11px] font-mono text-zinc-400">00:00</span>
                     </div>
 
-                    <!-- Botonera de acciones -->
+                    <!-- Botones de Acción Múltiple -->
                     <div class="flex items-center justify-between">
+                        <!-- Izquierda: Play, Retroceder, Avanzar, Volumen -->
                         <div class="flex items-center space-x-4">
-                            <!-- Play/Pausa -->
-                            <button id="play-btn" class="text-zinc-300 hover:text-white transition transform active:scale-95" title="Reproducir / Pausar">
-                                <svg class="w-6 h-6" id="controls-play-icon" fill="currentColor" viewBox="0 0 24 24">
+                            <button id="btn-play" class="text-zinc-200 hover:text-white transition transform active:scale-95">
+                                <svg id="btn-play-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M8 5v14l11-7z" />
                                 </svg>
-                                <svg class="w-6 h-6 hidden" id="controls-pause-icon" fill="currentColor" viewBox="0 0 24 24">
+                                <svg id="btn-pause-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                                 </svg>
                             </button>
 
-                            <!-- Retroceder 10s -->
-                            <button id="rewind-btn" class="text-zinc-400 hover:text-white transition" title="Retroceder 10s">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.334 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z" />
+                            <button id="btn-rewind" class="text-zinc-400 hover:text-white transition" title="Retroceder 10s">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.334 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z" />
                                 </svg>
                             </button>
 
-                            <!-- Avanzar 10s -->
-                            <button id="forward-btn" class="text-zinc-400 hover:text-white transition" title="Avanzar 10s">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z" />
+                            <button id="btn-forward" class="text-zinc-400 hover:text-white transition" title="Avanzar 10s">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z" />
                                 </svg>
                             </button>
 
-                            <!-- Control de Volumen integrado -->
                             <div class="flex items-center space-x-2 group/volume">
-                                <button id="mute-btn" class="text-zinc-300 hover:text-white transition">
-                                    <!-- High Volume Icon -->
-                                    <svg id="volume-high-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <button id="btn-mute" class="text-zinc-200 hover:text-white transition">
+                                    <svg id="icon-volume" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
                                     </svg>
-                                    <!-- Muted Icon -->
-                                    <svg id="volume-muted-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 24 24">
+                                    <svg id="icon-mute" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.21.05-.42.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
                                     </svg>
                                 </button>
-                                <input id="volume-slider" type="range" min="0" max="1" step="0.05" value="0.8" class="w-0 group-hover/volume:w-20 focus:w-20 h-1 bg-zinc-600 rounded-lg appearance-none cursor-pointer transition-all duration-300 origin-left">
+                                <input id="slider-volume" type="range" min="0" max="1" step="0.05" value="0.8" class="w-0 group-hover/volume:w-16 focus:w-16 h-1 bg-zinc-700 rounded appearance-none cursor-pointer transition-all duration-300">
                             </div>
                         </div>
 
-                        <div class="flex items-center space-x-4">
-                            <!-- Velocidad de reproducción (Speed) -->
+                        <!-- Derecha: Velocidad, PiP, Fullscreen -->
+                        <div class="flex items-center space-x-3">
                             <div class="relative group/speed">
-                                <button id="speed-btn" class="text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 px-2.5 py-1 rounded-md text-zinc-300 hover:text-white transition">
-                                    1.0x
-                                </button>
-                                <!-- Menu de velocidades -->
-                                <div class="absolute bottom-full right-0 mb-2 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl overflow-hidden py-1 w-20 hidden group-hover/speed:block">
-                                    <button class="speed-opt w-full text-left px-3 py-1 text-xs hover:bg-blue-600 hover:text-white" data-speed="0.5">0.5x</button>
-                                    <button class="speed-opt w-full text-left px-3 py-1 text-xs hover:bg-blue-600 hover:text-white" data-speed="1.0">1.0x</button>
-                                    <button class="speed-opt w-full text-left px-3 py-1 text-xs hover:bg-blue-600 hover:text-white" data-speed="1.5">1.5x</button>
-                                    <button class="speed-opt w-full text-left px-3 py-1 text-xs hover:bg-blue-600 hover:text-white" data-speed="2.0">2.0x</button>
+                                <button id="btn-speed" class="text-[10px] bg-zinc-900 hover:bg-zinc-800 border border-zinc-850 text-zinc-300 px-2 py-1 rounded font-bold transition">1.0x</button>
+                                <div class="absolute bottom-full right-0 mb-1 bg-zinc-900 border border-zinc-850 rounded shadow-xl overflow-hidden py-1 w-16 hidden group-hover/speed:block">
+                                    <button class="opt-speed w-full text-center py-1 text-[10px] hover:bg-blue-600 hover:text-white" data-speed="0.5">0.5x</button>
+                                    <button class="opt-speed w-full text-center py-1 text-[10px] hover:bg-blue-600 hover:text-white" data-speed="1.0">1.0x</button>
+                                    <button class="opt-speed w-full text-center py-1 text-[10px] hover:bg-blue-600 hover:text-white" data-speed="1.5">1.5x</button>
+                                    <button class="opt-speed w-full text-center py-1 text-[10px] hover:bg-blue-600 hover:text-white" data-speed="2.0">2.0x</button>
                                 </div>
                             </div>
 
-                            <!-- Picture in Picture (PiP) -->
-                            <button id="pip-btn" class="text-zinc-400 hover:text-white transition" title="Picture in Picture">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                            <button id="btn-pip" class="text-zinc-400 hover:text-white transition" title="Picture in Picture">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2z" />
                                 </svg>
                             </button>
 
-                            <!-- Pantalla Completa (Fullscreen) -->
-                            <button id="fullscreen-btn" class="text-zinc-300 hover:text-white transition transform active:scale-95" title="Pantalla Completa">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                            <button id="btn-fullscreen" class="text-zinc-200 hover:text-white transition transform active:scale-95" title="Pantalla Completa">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                                 </svg>
                             </button>
                         </div>
@@ -207,350 +181,338 @@
                 </div>
             </div>
 
-            <!-- CARGANDO / FEEDBACK VISUAL -->
-            <div id="loading-spinner" class="absolute inset-0 bg-black/80 flex flex-col items-center justify-center space-y-4 z-20 transition-all duration-300">
-                <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                <p class="text-sm text-zinc-400 font-medium">Resolviendo origen seguro de video...</p>
-            </div>
-
-            <!-- ERROR DISPLAY -->
-            <div id="error-display" class="absolute inset-0 bg-zinc-950 flex-col items-center justify-center space-y-4 z-30 p-6 text-center hidden">
-                <div class="bg-red-950 text-red-400 p-3 rounded-full border border-red-900">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            <!-- Loader / Cargador de Buffer -->
+            <div id="loader" class="absolute inset-0 bg-zinc-950 flex flex-col items-center justify-center space-y-4 z-20 transition-all duration-300">
+                <div class="relative flex items-center justify-center">
+                    <div class="w-14 h-14 border-4 border-blue-600/30 border-t-blue-500 rounded-full animate-spin"></div>
+                    <svg class="w-6 h-6 text-blue-500 absolute animate-pulse" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
                 </div>
-                <h3 class="text-lg font-bold text-zinc-200">No se pudo cargar la transmisión</h3>
-                <p id="error-message" class="text-sm text-zinc-400 max-w-md">El formato del video es incorrecto o la URL ha expirado. Por favor, verifica el enlace ingresado.</p>
-                <button onclick="location.reload()" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-xs font-semibold transition">Reintentar</button>
+                <div class="text-center">
+                    <p class="text-xs text-zinc-300 font-bold tracking-wide uppercase">Cifrado de Enlace Activo</p>
+                    <p class="text-[10px] text-zinc-500 mt-1">Conectando con el servidor de streaming de forma segura...</p>
+                </div>
+            </div>
+
+            <!-- Pantalla de Error -->
+            <div id="error-screen" class="absolute inset-0 bg-zinc-950 flex flex-col items-center justify-center space-y-4 z-30 p-6 text-center hidden">
+                <div class="bg-red-950/40 border border-red-900/50 text-red-500 p-4 rounded-full">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <h3 class="text-md font-bold text-zinc-200">Enlace No Soportado</h3>
+                <p id="error-desc" class="text-xs text-zinc-400 max-w-md">La URL de transmisión no puede ser decodificada o es inaccesible en este momento.</p>
+                <button onclick="location.reload()" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 px-5 py-2.5 rounded-xl text-xs font-semibold transition-all">Restablecer Reproductor</button>
             </div>
         </div>
 
-        <!-- GENERADOR DE ENLACES ENCRIPTADOS (Plegable) -->
-        <section id="generator-section" class="w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-xl hidden">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-md font-bold tracking-tight text-white flex items-center space-x-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
-                    <span>Generador de Enlaces Ofuscados</span>
-                </h2>
-                <span class="text-xs text-zinc-500">Oculta tus fuentes originales en los parámetros del reproductor</span>
+        <!-- GENERADOR DE ENLACES OFUSCADOS -->
+        <section id="generator-wrapper" class="w-full bg-zinc-900 border border-zinc-850 rounded-2xl p-6 shadow-xl hidden">
+            <div class="flex items-center justify-between mb-5">
+                <h3 class="text-sm font-bold text-white flex items-center space-x-2">
+                    <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                    <span>Generador de Enlaces</span>
+                </h3>
+                <span class="text-[10px] text-zinc-500 uppercase tracking-widest">Encriptador Seguro</span>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="md:col-span-2">
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">URL Real del Video o Embed (ej. Streamwish, .m3u8, .mp4)</label>
-                    <input id="input-real-url" type="text" placeholder="https://streamwish.to/e/abcdefg123 ó https://mi-servidor.com/video.m3u8" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition text-zinc-200">
-                </div>
+            <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">Tipo de Entrada</label>
-                    <select id="input-type" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition text-zinc-200">
-                        <option value="hls">Streaming HLS / M3U8 (Recomendado)</option>
-                        <option value="iframe">Embed de Terceros / IFrame</option>
-                    </select>
+                    <label class="block text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Pegar URL del Video (Directo, Streamwish, Audinifer, Rumble, etc.)</label>
+                    <input id="raw-url" type="text" placeholder="Ej: https://hugh.cdn.rumble.cloud/video/.../cJztA.aaa.mp4" class="w-full bg-zinc-950 border border-zinc-850 rounded-xl px-4 py-3 text-xs text-zinc-300 focus:outline-none focus:border-blue-500 transition">
                 </div>
+                <button id="btn-create" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-xs transition shadow-lg shadow-blue-900/30">Generar Enlace Seguro</button>
             </div>
 
-            <button id="btn-generate-link" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold text-sm transition shadow-lg shadow-blue-950/40 hover:shadow-blue-900/50 flex items-center justify-center space-x-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                </svg>
-                <span>Generar URL Ocultada</span>
-            </button>
-
-            <!-- Resultados -->
-            <div id="generation-result" class="mt-6 p-4 bg-zinc-950 border border-zinc-800 rounded-xl hidden">
-                <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">URL Ofuscada Lista para Compartir</p>
+            <!-- Zona de Resultados -->
+            <div id="output-wrapper" class="mt-5 p-4 bg-zinc-950 border border-zinc-850 rounded-xl hidden">
+                <label class="block text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-2">Enlace Enmascarado para Distribución</label>
                 <div class="flex items-center space-x-2">
-                    <input id="output-generated-url" readonly type="text" class="flex-grow bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs font-mono text-zinc-300 focus:outline-none focus:border-blue-500">
-                    <button id="btn-copy-link" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-4 py-2 rounded-lg font-semibold transition active:scale-95 flex items-center space-x-1">
-                        <span>Copiar</span>
-                    </button>
-                    <button id="btn-play-generated" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs px-4 py-2 rounded-lg font-semibold transition active:scale-95">
-                        Probar
-                    </button>
+                    <input id="final-link" readonly type="text" class="flex-grow bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-[11px] font-mono text-zinc-300 focus:outline-none">
+                    <button id="btn-copy" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-semibold transition active:scale-95">Copiar</button>
                 </div>
-                <!-- Mensaje temporal al copiar -->
-                <p id="copy-success" class="text-xs text-green-400 mt-2 font-medium hidden">¡Copiado al portapapeles con éxito!</p>
+                <p id="copy-notif" class="text-[10px] text-emerald-400 font-medium mt-2 hidden">¡URL copiada con éxito al portapapeles!</p>
             </div>
         </section>
 
-        <!-- GUÍA / INFORMACIÓN DE USO -->
-        <section class="w-full grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-            <div class="bg-zinc-900/50 border border-zinc-800/80 p-6 rounded-2xl space-y-3">
-                <h4 class="font-bold text-white flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>¿Cómo funciona la Ofuscación?</span>
-                </h4>
-                <p class="text-zinc-400 leading-relaxed text-xs">
-                    El reproductor lee el parámetro cifrado <code class="bg-zinc-950 px-1.5 py-0.5 rounded text-zinc-300 font-mono">?v=[HASH_BASE64]</code> de la barra de direcciones. 
-                    En lugar de exponer el origen real como <code class="bg-zinc-950 px-1.5 py-0.5 rounded text-zinc-300 font-mono">https://streamwish...</code>, lo decodifica de forma interna en la memoria del navegador. Así el visitante nunca sabrá a simple vista de qué hosting o CDN procede tu video.
+        <!-- CARACTERÍSTICAS TÉCNICAS -->
+        <section class="w-full grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-zinc-900/40 border border-zinc-900 p-5 rounded-2xl space-y-2">
+                <span class="text-blue-500 text-xs font-bold uppercase tracking-wider">01. Escudo Inteligente</span>
+                <p class="text-xs text-zinc-400 leading-relaxed">
+                    Bloquea anuncios intrusivos de los embeds como Streamwish y Audinifer mediante políticas estrictas de <code class="bg-zinc-950 text-blue-400 px-1.5 py-0.5 rounded text-[10px] font-mono">sandbox</code>.
                 </p>
             </div>
-            <div class="bg-zinc-900/50 border border-zinc-800/80 p-6 rounded-2xl space-y-3">
-                <h4 class="font-bold text-white flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                    </svg>
-                    <span>Consejo de uso (Streamwish / HLS)</span>
-                </h4>
-                <p class="text-zinc-400 leading-relaxed text-xs">
-                    Para obtener un control de video absoluto y bloquear anuncios molestos de Streamwish, te recomendamos usar un extractor de enlaces de video para obtener el archivo directo que termina en <code class="bg-zinc-950 px-1.5 py-0.5 rounded text-zinc-300 font-mono">.m3u8</code>. Al ingresarlo como tipo <strong>Streaming HLS</strong>, se reproducirá en nuestro motor nativo con los controles ultralimpios.
+            <div class="bg-zinc-900/40 border border-zinc-900 p-5 rounded-2xl space-y-2">
+                <span class="text-blue-500 text-xs font-bold uppercase tracking-wider">02. Control Absoluto</span>
+                <p class="text-xs text-zinc-400 leading-relaxed">
+                    Si extraes el archivo directo <code class="bg-zinc-950 text-blue-400 px-1.5 py-0.5 rounded text-[10px] font-mono">.mp4</code> o <code class="bg-zinc-950 text-blue-400 px-1.5 py-0.5 rounded text-[10px] font-mono">.m3u8</code>, disfrutarás del reproductor de manera fluida y libre de trackers.
+                </p>
+            </div>
+            <div class="bg-zinc-900/40 border border-zinc-900 p-5 rounded-2xl space-y-2">
+                <span class="text-blue-500 text-xs font-bold uppercase tracking-wider">03. Ocultamiento Limpio</span>
+                <p class="text-xs text-zinc-400 leading-relaxed">
+                    El reproductor utiliza cifrado en base64 y limpia el historial del navegador al cargar para prevenir que el usuario vea la fuente real.
                 </p>
             </div>
         </section>
-
     </main>
 
     <!-- Footer -->
-    <footer class="w-full py-6 text-center text-xs text-zinc-600 border-t border-zinc-900 mt-auto bg-zinc-950/80">
-        <p>StreamShield Player © 2026. Diseñado para un streaming de video limpio y libre de trackers.</p>
+    <footer class="w-full py-6 text-center text-[10px] text-zinc-600 border-t border-zinc-900 mt-auto bg-zinc-950/80">
+        StreamShield Player • Todos los derechos reservados.
     </footer>
 
-    <!-- LÓGICA DE CONTROL DEL REPRODUCTOR -->
+    <!-- INTERACTIVIDAD Y MOTOR LOGICO -->
     <script>
-        // Elementos del DOM
-        const video = document.getElementById('main-video');
+        // DOM Elements
         const playerContainer = document.getElementById('player-container');
-        const customControls = document.getElementById('custom-controls');
-        const iframeContainer = document.getElementById('iframe-container');
+        const video = document.getElementById('html5-video');
+        const embedContainer = document.getElementById('embed-container');
         const embedIframe = document.getElementById('embed-iframe');
-        const loadingSpinner = document.getElementById('loading-spinner');
-        const errorDisplay = document.getElementById('error-display');
-        const errorMessage = document.getElementById('error-message');
-        const statusBanner = document.getElementById('status-banner');
-        const statusText = document.getElementById('status-text');
+        const customControls = document.getElementById('custom-controls');
+        const loader = document.getElementById('loader');
+        const errorScreen = document.getElementById('error-screen');
+        const errorDesc = document.getElementById('error-desc');
+        const maskStatus = document.getElementById('mask-status');
 
-        // Controles de botones
-        const playBtn = document.getElementById('play-btn');
-        const centerPlayBtn = document.getElementById('center-play-btn');
-        const muteBtn = document.getElementById('mute-btn');
-        const volumeSlider = document.getElementById('volume-slider');
-        const progressBarContainer = document.getElementById('progress-bar-container');
-        const progressCurrent = document.getElementById('progress-current');
-        const progressBuffered = document.getElementById('progress-buffered');
-        const progressPin = document.getElementById('progress-pin');
-        const currentTimeEl = document.getElementById('current-time');
-        const durationTimeEl = document.getElementById('duration-time');
-        const speedBtn = document.getElementById('speed-btn');
-        const fullscreenBtn = document.getElementById('fullscreen-btn');
-        const pipBtn = document.getElementById('pip-btn');
-        const rewindBtn = document.getElementById('rewind-btn');
-        const forwardBtn = document.getElementById('forward-btn');
-
-        // Iconos
-        const controlsPlayIcon = document.getElementById('controls-play-icon');
-        const controlsPauseIcon = document.getElementById('controls-pause-icon');
+        // Botones e Iconos
+        const btnPlay = document.getElementById('btn-play');
+        const btnPlayIcon = document.getElementById('btn-play-icon');
+        const btnPauseIcon = document.getElementById('btn-pause-icon');
+        const centerPlay = document.getElementById('center-play');
         const centerPlayIcon = document.getElementById('center-play-icon');
         const centerPauseIcon = document.getElementById('center-pause-icon');
-        const volumeHighIcon = document.getElementById('volume-high-icon');
-        const volumeMutedIcon = document.getElementById('volume-muted-icon');
+        const btnMute = document.getElementById('btn-mute');
+        const iconVolume = document.getElementById('icon-volume');
+        const iconMute = document.getElementById('icon-mute');
+        const sliderVolume = document.getElementById('slider-volume');
+        const timelineContainer = document.getElementById('timeline-container');
+        const timelineProgress = document.getElementById('timeline-progress');
+        const timelineBuffered = document.getElementById('timeline-buffered');
+        const timelinePin = document.getElementById('timeline-pin');
+        const timeCurrent = document.getElementById('time-current');
+        const timeDuration = document.getElementById('time-duration');
+        const btnSpeed = document.getElementById('btn-speed');
+        const btnPip = document.getElementById('btn-pip');
+        const btnFullscreen = document.getElementById('btn-fullscreen');
+        const btnRewind = document.getElementById('btn-rewind');
+        const btnForward = document.getElementById('btn-forward');
 
-        // Secciones plegables
-        const toggleGeneratorBtn = document.getElementById('toggle-generator-btn');
-        const generatorSection = document.getElementById('generator-section');
+        // Generador
+        const toggleGenerator = document.getElementById('toggle-generator');
+        const generatorWrapper = document.getElementById('generator-wrapper');
+        const rawUrl = document.getElementById('raw-url');
+        const btnCreate = document.getElementById('btn-create');
+        const outputWrapper = document.getElementById('output-wrapper');
+        const finalLink = document.getElementById('final-link');
+        const btnCopy = document.getElementById('btn-copy');
+        const copyNotif = document.getElementById('copy-notif');
 
-        // Generador de enlaces
-        const inputRealUrl = document.getElementById('input-real-url');
-        const inputType = document.getElementById('input-type');
-        const btnGenerateLink = document.getElementById('btn-generate-link');
-        const generationResult = document.getElementById('generation-result');
-        const outputGeneratedUrl = document.getElementById('output-generated-url');
-        const btnCopyLink = document.getElementById('btn-copy-link');
-        const copySuccess = document.getElementById('copy-success');
-        const btnPlayGenerated = document.getElementById('btn-play-generated');
-
-        let hlsInstance = null;
+        let hls = null;
         let isSeeking = false;
 
-        // --- INICIALIZACIÓN ---
-        window.onload = function() {
-            initUrlParameters();
-            setupEventListeners();
-        };
+        // --- CARGA Y ENRUTAMIENTO INICIAL ---
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const sourceParam = params.get('v');
 
-        // --- SISTEMA DE URLS OFUSCADAS ---
-        function initUrlParameters() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const obfuscatedData = urlParams.get('v'); // ?v=[BASE64]
-            const explicitType = urlParams.get('t');  // ?t=hls o ?t=iframe
-
-            if (obfuscatedData) {
+            if (sourceParam) {
                 try {
-                    // Decodificar Base64 de forma interna
-                    const decryptedUrl = atob(obfuscatedData);
-                    let type = explicitType || 'hls';
-                    
-                    // Auto-detectar si el enlace es m3u8 o mp4
-                    if (!explicitType) {
-                        if (decryptedUrl.includes('.m3u8') || decryptedUrl.includes('.mp4')) {
-                            type = 'hls';
-                        } else {
-                            type = 'iframe';
-                        }
+                    // 1. Decodificar Base64
+                    const decodedUrl = atob(sourceParam);
+                    maskStatus.classList.remove('hidden');
+
+                    // 2. Limpieza estética de la URL de navegación para ocultarla
+                    if (window.history && window.history.replaceState) {
+                        const cleanUrl = window.location.origin + window.location.pathname + "?stream=protected";
+                        window.history.replaceState({}, document.title, cleanUrl);
                     }
 
-                    // Mostrar banner de carga segura
-                    statusBanner.classList.remove('hidden');
-                    statusText.textContent = `Resolviendo origen de transmisión cifrada: [SHA-256 ...${obfuscatedData.substring(0, 10)}]`;
-
-                    loadVideoSource(decryptedUrl, type);
+                    // 3. Evaluar el origen e iniciar la reproducción
+                    routeSource(decodedUrl);
                 } catch (e) {
-                    showError("El código de ofuscación de URL es inválido o se encuentra dañado.");
+                    showError("El código de transmisión proporcionado está corrupto o es inválido.");
                 }
             } else {
-                // Cargar un video demo de streaming HLS por defecto si no hay parámetros
-                const defaultVideo = "https://test-streams.mux.dev/x36xhqm/x36xhqm.m3u8";
-                loadVideoSource(defaultVideo, 'hls');
-                document.getElementById('video-title').textContent = "Video Demo de Prueba (Mux Streaming)";
+                // Video por defecto de demostración
+                routeSource("https://test-streams.mux.dev/x36xhqm/x36xhqm.m3u8");
+                document.getElementById('player-title').textContent = "Canal de Prueba • HLS Stream";
+            }
+
+            setupControls();
+        });
+
+        // Determinar qué reproductor usar
+        function routeSource(url) {
+            loader.classList.remove('hidden');
+            errorScreen.classList.add('hidden');
+
+            const isDirectVideo = url.includes('.mp4') || url.includes('.m3u8') || url.includes('.webm') || url.includes('.ogg');
+
+            if (isDirectVideo) {
+                // ACTIVAR REPRODUCTOR NATIVO CON CONTROLES CUSTOM
+                video.classList.remove('hidden');
+                embedContainer.classList.add('hidden');
+                customControls.classList.remove('pointer-events-none');
+                
+                initDirectPlayer(url);
+            } else {
+                // ACTIVAR CONTENEDOR EMULADO CON SANDBOX (Anti-Anuncios)
+                video.classList.add('hidden');
+                embedContainer.classList.remove('hidden');
+                customControls.classList.add('pointer-events-none'); // Deshabilitar superposiciones estorbosas
+
+                initEmbedPlayer(url);
             }
         }
 
-        // --- MOTOR DE REPRODUCCIÓN ---
-        function loadVideoSource(url, type) {
-            loadingSpinner.classList.remove('hidden');
-            errorDisplay.classList.add('hidden');
+        // --- MOTOR 1: REPRODUCTOR HTML5 Y HLS ---
+        function initDirectPlayer(url) {
+            document.getElementById('player-title').textContent = "Stream Directo Protegido";
 
-            if (type === 'hls') {
-                // Habilitar controles personalizados, esconder el iframe
-                video.classList.remove('hidden');
-                iframeContainer.classList.add('hidden');
-                customControls.classList.remove('pointer-events-none');
-                
-                // Limpieza de reproductor HLS previo si existe
-                if (hlsInstance) {
-                    hlsInstance.destroy();
-                }
+            if (hls) {
+                hls.destroy();
+            }
 
-                if (url.endsWith('.mp4') || !url.includes('.m3u8')) {
-                    // Carga directa de MP4 standard
-                    video.src = url;
-                    video.load();
-                } else if (Hls.isSupported()) {
-                    // Cargar vía HLS.js
-                    hlsInstance = new Hls({
-                        maxMaxBufferLength: 30,
-                        enableWorker: true
+            if (url.includes('.m3u8')) {
+                if (Hls.isSupported()) {
+                    hls = new Hls({ maxMaxBufferLength: 10 });
+                    hls.loadSource(url);
+                    hls.attachMedia(video);
+                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                        loader.classList.add('hidden');
                     });
-                    hlsInstance.loadSource(url);
-                    hlsInstance.attachMedia(video);
-                    
-                    hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
-                        loadingSpinner.classList.add('hidden');
-                    });
-
-                    hlsInstance.on(Hls.Events.ERROR, function(event, data) {
+                    hls.on(Hls.Events.ERROR, (event, data) => {
                         if (data.fatal) {
-                            switch (data.type) {
-                                case Hls.ErrorTypes.NETWORK_ERROR:
-                                    hlsInstance.startLoad();
-                                    break;
-                                case Hls.ErrorTypes.MEDIA_ERROR:
-                                    hlsInstance.recoverMediaError();
-                                    break;
-                                default:
-                                    showError("No fue posible establecer conexión con el stream seguro.");
-                                    break;
-                            }
+                            showError("Fallo crítico en el enrutamiento de la transmisión M3U8.");
                         }
                     });
                 } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                    // Fallback nativo para navegadores como Safari (iOS)
+                    // Soporte Nativo de Apple (Safari / iOS)
                     video.src = url;
+                    video.addEventListener('loadedmetadata', () => {
+                        loader.classList.add('hidden');
+                    });
                 } else {
-                    showError("Tu navegador no soporta la tecnología HLS de streaming directo.");
+                    showError("Tu navegador no posee soporte nativo para transmisiones HLS.");
                 }
-
-                // Controladores de eventos del motor de video HTML5
-                video.addEventListener('waiting', () => loadingSpinner.classList.remove('hidden'));
-                video.addEventListener('playing', () => loadingSpinner.classList.add('hidden'));
-                video.addEventListener('canplay', () => loadingSpinner.classList.add('hidden'));
-                video.addEventListener('timeupdate', updateProgressBar);
-                video.addEventListener('volumechange', syncVolumeUI);
-
-            } else if (type === 'iframe') {
-                // Esconder video HTML5, usar el iframe cargado de forma segura
-                video.classList.add('hidden');
-                iframeContainer.classList.remove('hidden');
-                customControls.classList.add('pointer-events-none'); // Inhabilitar capas que bloqueen el iframe
-                
-                // Configurar iframe
-                embedIframe.src = url;
-                
-                embedIframe.onload = function() {
-                    loadingSpinner.classList.add('hidden');
-                };
-
-                // Detector de errores rudimentario para iframe
-                setTimeout(() => {
-                    if (loadingSpinner.style.display !== 'none') {
-                        loadingSpinner.classList.add('hidden');
-                    }
-                }, 4000);
+            } else {
+                // MP4 / WebM / Ogg Directo
+                video.src = url;
+                video.load();
+                video.addEventListener('loadedmetadata', () => {
+                    loader.classList.add('hidden');
+                });
+                video.addEventListener('error', () => {
+                    showError("El archivo de video directo no se puede reproducir o no existe.");
+                });
             }
+
+            // Monitor de buffering
+            video.addEventListener('waiting', () => loader.classList.remove('hidden'));
+            video.addEventListener('playing', () => loader.classList.add('hidden'));
+            video.addEventListener('canplay', () => loader.classList.add('hidden'));
+            video.addEventListener('timeupdate', updateTimeline);
+            video.addEventListener('volumechange', updateVolumeUI);
         }
 
-        // --- SISTEMA DE CONTROLES HTML5 ---
-        function setupEventListeners() {
-            // Play / Pause
-            playBtn.addEventListener('click', togglePlay);
-            centerPlayBtn.addEventListener('click', togglePlay);
-            video.addEventListener('click', togglePlay);
+        // --- MOTOR 2: IFRAME DE EMBEDS SEGURO ---
+        function initEmbedPlayer(url) {
+            // Resolver si es necesario transformarlo en formato Embed (ej. Streamwish)
+            let embedUrl = url;
 
-            // Actualización visual de play/pausa
+            // Detección común de Streamwish / Audinifer
+            if (url.includes('streamwish.to') && !url.includes('/e/')) {
+                embedUrl = url.replace('streamwish.to/', 'streamwish.to/e/');
+            } else if (url.includes('audinifer.com') && !url.includes('/e/')) {
+                embedUrl = url.replace('audinifer.com/', 'audinifer.com/e/');
+            }
+
+            embedIframe.src = embedUrl;
+
+            embedIframe.onload = () => {
+                loader.classList.add('hidden');
+            };
+
+            // Mecanismo de timeout en caso de caída del host remoto
+            setTimeout(() => {
+                if (!loader.classList.contains('hidden')) {
+                    loader.classList.add('hidden');
+                }
+            }, 5000);
+        }
+
+        // --- CONFIGURACIÓN DE CONTROLES PERSONALIZADOS ---
+        function setupControls() {
+            // Play y Pausa
+            const performPlayToggle = () => {
+                if (video.paused) {
+                    video.play();
+                } else {
+                    video.pause();
+                }
+            };
+
+            btnPlay.addEventListener('click', performPlayToggle);
+            centerPlay.addEventListener('click', performPlayToggle);
+            video.addEventListener('click', performPlayToggle);
+
             video.addEventListener('play', () => {
-                controlsPlayIcon.classList.add('hidden');
-                controlsPauseIcon.classList.remove('hidden');
+                btnPlayIcon.classList.add('hidden');
+                btnPauseIcon.classList.remove('hidden');
                 centerPlayIcon.classList.add('hidden');
                 centerPauseIcon.classList.remove('hidden');
             });
 
             video.addEventListener('pause', () => {
-                controlsPlayIcon.classList.remove('hidden');
-                controlsPauseIcon.classList.add('hidden');
+                btnPlayIcon.classList.remove('hidden');
+                btnPauseIcon.classList.add('hidden');
                 centerPlayIcon.classList.remove('hidden');
                 centerPauseIcon.classList.add('hidden');
             });
 
-            // Retroceso & Avance
-            rewindBtn.addEventListener('click', () => video.currentTime -= 10);
-            forwardBtn.addEventListener('click', () => video.currentTime += 10);
+            // Avance y Retroceso rápido
+            btnRewind.addEventListener('click', () => video.currentTime -= 10);
+            btnForward.addEventListener('click', () => video.currentTime += 10);
 
-            // Mute / Unmute
-            muteBtn.addEventListener('click', toggleMute);
-            volumeSlider.addEventListener('input', (e) => {
+            // Mute y Volumen
+            btnMute.addEventListener('click', () => {
+                video.muted = !video.muted;
+            });
+
+            sliderVolume.addEventListener('input', (e) => {
                 video.volume = e.target.value;
                 video.muted = false;
             });
 
-            // Barra de progreso interactiva (Seek)
-            progressBarContainer.addEventListener('mousedown', (e) => {
+            // Timeline / Seek
+            timelineContainer.addEventListener('mousedown', (e) => {
                 isSeeking = true;
-                seek(e);
+                performSeek(e);
             });
+
             document.addEventListener('mousemove', (e) => {
-                if (isSeeking) seek(e);
+                if (isSeeking) performSeek(e);
             });
+
             document.addEventListener('mouseup', () => {
                 isSeeking = false;
             });
 
-            // Cambios de Velocidad
-            document.querySelectorAll('.speed-opt').forEach(opt => {
+            // Velocidad
+            document.querySelectorAll('.opt-speed').forEach(opt => {
                 opt.addEventListener('click', (e) => {
-                    const val = parseFloat(e.target.dataset.speed);
-                    video.playbackRate = val;
-                    speedBtn.textContent = val + 'x';
+                    const speed = parseFloat(e.target.dataset.speed);
+                    video.playbackRate = speed;
+                    btnSpeed.textContent = speed + 'x';
                 });
             });
 
-            // Pantalla completa
-            fullscreenBtn.addEventListener('click', toggleFullscreen);
-            playerContainer.addEventListener('dblclick', toggleFullscreen);
-
             // PiP
-            pipBtn.addEventListener('click', async () => {
+            btnPip.addEventListener('click', async () => {
                 try {
                     if (video !== document.pictureInPictureElement) {
                         await video.requestPictureInPicture();
@@ -558,163 +520,128 @@
                         await document.exitPictureInPicture();
                     }
                 } catch (e) {
-                    console.error("Picture-in-Picture falló o no es soportado.");
+                    console.warn("PiP no soportado en este navegador.");
                 }
             });
 
-            // Controladores del Generador de Enlaces
-            toggleGeneratorBtn.addEventListener('click', () => {
-                generatorSection.classList.toggle('hidden');
-                generatorSection.scrollIntoView({ behavior: 'smooth' });
-            });
+            // Fullscreen
+            btnFullscreen.addEventListener('click', toggleFullscreenState);
+            playerContainer.addEventListener('dblclick', toggleFullscreenState);
 
-            btnGenerateLink.addEventListener('click', generateSecureLink);
-            btnCopyLink.addEventListener('click', copyToClipboard);
-            btnPlayGenerated.addEventListener('click', playObfuscatedLink);
-
-            // Accesibilidad de teclado
+            // Teclado
             document.addEventListener('keydown', (e) => {
-                // Solo si el usuario no está escribiendo en campos de texto
-                if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'SELECT') {
+                if (document.activeElement.tagName !== 'INPUT') {
                     if (e.code === 'Space') {
                         e.preventDefault();
-                        togglePlay();
+                        performPlayToggle();
                     } else if (e.code === 'ArrowRight') {
                         video.currentTime += 5;
                     } else if (e.code === 'ArrowLeft') {
                         video.currentTime -= 5;
-                    } else if (e.code === 'ArrowUp') {
-                        e.preventDefault();
-                        video.volume = Math.min(1, video.volume + 0.05);
-                    } else if (e.code === 'ArrowDown') {
-                        e.preventDefault();
-                        video.volume = Math.max(0, video.volume - 0.05);
                     } else if (e.code === 'KeyF') {
-                        toggleFullscreen();
+                        toggleFullscreenState();
                     }
                 }
             });
+
+            // --- Lógica del Encriptador ---
+            toggleGenerator.addEventListener('click', () => {
+                generatorWrapper.classList.toggle('hidden');
+                generatorWrapper.scrollIntoView({ behavior: 'smooth' });
+            });
+
+            btnCreate.addEventListener('click', () => {
+                const input = rawUrl.value.trim();
+                if (!input) {
+                    alert("Por favor ingresa un enlace.");
+                    return;
+                }
+
+                const hash = btoa(input);
+                const completeUrl = window.location.origin + window.location.pathname + "?v=" + hash;
+                
+                finalLink.value = completeUrl;
+                outputWrapper.classList.remove('hidden');
+                copyNotif.classList.add('hidden');
+            });
+
+            btnCopy.addEventListener('click', () => {
+                finalLink.select();
+                document.execCommand('copy');
+                copyNotif.classList.remove('hidden');
+                setTimeout(() => {
+                    copyNotif.classList.add('hidden');
+                }, 3000);
+            });
         }
 
-        // --- FUNCIONES AUXILIARES ---
-        function togglePlay() {
-            if (video.paused) {
-                video.play();
-            } else {
-                video.pause();
-            }
-        }
-
-        function toggleMute() {
-            video.muted = !video.muted;
-        }
-
-        function syncVolumeUI() {
-            volumeSlider.value = video.muted ? 0 : video.volume;
-            if (video.muted || video.volume === 0) {
-                volumeHighIcon.classList.add('hidden');
-                volumeMutedIcon.classList.remove('hidden');
-            } else {
-                volumeHighIcon.classList.remove('hidden');
-                volumeMutedIcon.classList.add('hidden');
-            }
-        }
-
-        function updateProgressBar() {
+        // --- SISTEMAS DE SOPORTE DE INTERFAZ ---
+        function updateTimeline() {
             if (!video.duration) return;
 
-            // Progreso actual
-            const pct = (video.currentTime / video.duration) * 100;
-            progressCurrent.style.width = pct + '%';
-            progressPin.style.left = pct + '%';
+            const progress = (video.currentTime / video.duration) * 100;
+            timelineProgress.style.width = progress + '%';
+            timelinePin.style.left = progress + '%';
 
-            // Actualización de Tiempos
-            currentTimeEl.textContent = formatTime(video.currentTime);
-            durationTimeEl.textContent = formatTime(video.duration);
+            timeCurrent.textContent = formatTime(video.currentTime);
+            timeDuration.textContent = formatTime(video.duration);
 
-            // Progreso del Buffer
             if (video.buffered.length > 0) {
-                const bufferedEnd = video.buffered.end(video.buffered.length - 1);
-                const bufferedPct = (bufferedEnd / video.duration) * 100;
-                progressBuffered.style.width = bufferedPct + '%';
+                const end = video.buffered.end(video.buffered.length - 1);
+                const bufferedPct = (end / video.duration) * 100;
+                timelineBuffered.style.width = bufferedPct + '%';
             }
         }
 
-        function seek(e) {
-            const rect = progressBarContainer.getBoundingClientRect();
-            let pos = (e.clientX - rect.left) / rect.width;
-            pos = Math.max(0, Math.min(1, pos)); // Clamp de 0 a 1
-            video.currentTime = pos * video.duration;
-            progressCurrent.style.width = (pos * 100) + '%';
-            progressPin.style.left = (pos * 100) + '%';
+        function performSeek(e) {
+            const rect = timelineContainer.getBoundingClientRect();
+            let ratio = (e.clientX - rect.left) / rect.width;
+            ratio = Math.max(0, Math.min(1, ratio));
+            video.currentTime = ratio * video.duration;
+            timelineProgress.style.width = (ratio * 100) + '%';
+            timelinePin.style.left = (ratio * 100) + '%';
         }
 
-        function formatTime(seconds) {
-            const h = Math.floor(seconds / 3600);
-            const m = Math.floor((seconds % 3600) / 60);
-            const s = Math.floor(seconds % 60);
-            
-            const mStr = m < 10 ? '0' + m : m;
-            const sStr = s < 10 ? '0' + s : s;
-            
+        function updateVolumeUI() {
+            sliderVolume.value = video.muted ? 0 : video.volume;
+            if (video.muted || video.volume === 0) {
+                iconVolume.classList.add('hidden');
+                iconMute.classList.remove('hidden');
+            } else {
+                iconVolume.classList.remove('hidden');
+                iconMute.classList.add('hidden');
+            }
+        }
+
+        function formatTime(secs) {
+            const h = Math.floor(secs / 3600);
+            const m = Math.floor((secs % 3600) / 60);
+            const s = Math.floor(secs % 60);
+
+            const mString = m < 10 ? '0' + m : m;
+            const sString = s < 10 ? '0' + s : s;
+
             if (h > 0) {
-                return `${h}:${mStr}:${sStr}`;
+                return `${h}:${mString}:${sString}`;
             }
-            return `${mStr}:${sStr}`;
+            return `${mString}:${sString}`;
         }
 
-        function toggleFullscreen() {
+        function toggleFullscreenState() {
             if (!document.fullscreenElement) {
                 playerContainer.requestFullscreen().catch(err => {
-                    console.error("Error al habilitar Pantalla Completa: ", err);
+                    console.error("No se pudo iniciar el modo de pantalla completa", err);
                 });
             } else {
                 document.exitFullscreen();
             }
         }
 
-        function showError(message) {
-            loadingSpinner.classList.add('hidden');
-            errorDisplay.classList.remove('hidden');
-            errorMessage.textContent = message;
-        }
-
-        // --- OPERACIONES DEL ENCRIPTADOR ---
-        function generateSecureLink() {
-            const realUrl = inputRealUrl.value.trim();
-            const typeValue = inputType.value;
-
-            if (!realUrl) {
-                alert("Por favor ingresa una URL válida.");
-                return;
-            }
-
-            // Convertir la URL original en Base64
-            const obfuscated = btoa(realUrl);
-            const baseUrl = window.location.origin + window.location.pathname;
-            const fullObfuscatedUrl = `${baseUrl}?v=${obfuscated}&t=${typeValue}`;
-
-            // Mostrar el resultado
-            outputGeneratedUrl.value = fullObfuscatedUrl;
-            generationResult.classList.remove('hidden');
-            copySuccess.classList.add('hidden');
-        }
-
-        function copyToClipboard() {
-            outputGeneratedUrl.select();
-            document.execCommand('copy');
-            copySuccess.classList.remove('hidden');
-            setTimeout(() => {
-                copySuccess.classList.add('hidden');
-            }, 3000);
-        }
-
-        function playObfuscatedLink() {
-            const targetUrl = outputGeneratedUrl.value;
-            if (targetUrl) {
-                window.location.href = targetUrl;
-            }
+        function showError(msg) {
+            loader.classList.add('hidden');
+            errorScreen.classList.remove('hidden');
+            errorDesc.textContent = msg;
         }
     </script>
 </body>
-                                    </html>
+    </html>
