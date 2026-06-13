@@ -2,279 +2,101 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>FilmBox Play - Reproductor Minimalista</title>
+<title>FilmBox Play - Generador de Reproductor</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
     body {
+        margin: 0;
+        padding: 0;
         background: #0a0a0a;
-        color: white;
-        font-family: 'Segoe UI', system-ui, sans-serif;
-        overflow: hidden;
-        height: 100vh;
+        color: #fff;
+        font-family: system-ui, sans-serif;
+        min-height: 100vh;
         display: flex;
-        justify-content: center;
         align-items: center;
+        justify-content: center;
     }
-    
-    .player-wrapper {
+    .container {
         width: 100%;
-        max-width: 1280px;
+        max-width: 700px;
         background: #111;
         border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 0 40px rgba(0, 255, 157, 0.15);
+        padding: 40px;
+        box-shadow: 0 20px 50px rgba(0,255,157,0.1);
     }
-    
-    #custom-player {
-        position: relative;
+    h1 { text-align: center; margin-bottom: 30px; color: #00ff9d; }
+    textarea {
         width: 100%;
-        padding-top: 56.25%; /* 16:9 */
-        background: #000;
+        height: 120px;
+        background: #1a1a1a;
+        border: 2px solid #333;
+        border-radius: 10px;
+        color: white;
+        padding: 15px;
+        font-size: 16px;
+        resize: vertical;
     }
-    
-    #video-frame {
-        position: absolute;
-        top: 0; left: 0;
+    button {
+        margin-top: 20px;
         width: 100%;
-        height: 100%;
+        padding: 16px;
+        background: #00ff9d;
+        color: black;
         border: none;
-    }
-    
-    .controls-overlay {
-        position: absolute;
-        bottom: 0; left: 0; right: 0;
-        background: linear-gradient(transparent, rgba(10,10,10,0.95));
-        padding: 25px 30px 18px;
-        opacity: 0;
-        transition: all 0.4s ease;
-        z-index: 10;
-    }
-    
-    .player-wrapper:hover .controls-overlay {
-        opacity: 1;
-    }
-    
-    .progress-container {
-        height: 6px;
-        background: rgba(255,255,255,0.15);
-        border-radius: 999px;
-        margin-bottom: 18px;
+        border-radius: 10px;
+        font-size: 18px;
+        font-weight: bold;
         cursor: pointer;
-        position: relative;
     }
-    
-    .progress {
-        height: 100%;
-        background: linear-gradient(90deg, #00ff9d, #00cc7a);
-        width: 0%;
-        border-radius: 999px;
-        transition: width 0.1s linear;
-    }
-    
-    .controls {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-    }
-    
-    .svg-icon {
-        width: 26px;
-        height: 26px;
-        cursor: pointer;
-        fill: #ddd;
-        transition: all 0.2s;
-    }
-    
-    .svg-icon:hover {
-        fill: #00ff9d;
-        transform: scale(1.2);
-    }
-    
-    .time {
-        font-family: monospace;
+    button:hover { background: #00cc7a; }
+    .info {
+        margin-top: 25px;
+        padding: 15px;
+        background: #1a1a1a;
+        border-radius: 8px;
         font-size: 14px;
-        color: #999;
-        min-width: 110px;
-    }
-    
-    .volume-group {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    input[type="range"] {
-        accent-color: #00ff9d;
-    }
-    
-    .title {
-        position: absolute;
-        top: 20px;
-        left: 30px;
-        background: rgba(0,0,0,0.6);
-        padding: 6px 14px;
-        border-radius: 6px;
-        font-size: 15px;
-        z-index: 20;
-        pointer-events: none;
+        color: #aaa;
     }
 </style>
 </head>
 <body>
 
-<div class="player-wrapper">
-    <div id="custom-player">
-        <div class="title">FilmBox Play - Audinifer</div>
-        <iframe id="video-frame" allowfullscreen allow="autoplay; encrypted-media"></iframe>
-        
-        <div class="controls-overlay">
-            <div class="progress-container" id="progress-bar">
-                <div class="progress" id="progress"></div>
-            </div>
-            
-            <div class="controls">
-                <svg onclick="togglePlay()" id="play-btn" class="svg-icon" viewBox="0 0 24 24">
-                    <path d="M8 5.14v14.72c0 .61.67.98 1.21.65l11.32-7.36c.5-.32.5-1.08 0-1.4L9.21 4.49C8.67 4.16 8 4.53 8 5.14z"/>
-                </svg>
-                
-                <div class="volume-group">
-                    <svg onclick="toggleMute()" id="volume-btn" class="svg-icon" viewBox="0 0 24 24">
-                        <path d="M3 9v6h4l5 5V4L7 9H3z"/>
-                        <path d="M16 9a4 4 0 0 1 0 6" id="volume-wave"/>
-                    </svg>
-                    <input type="range" id="volume" min="0" max="1" step="0.01" value="1" style="width:100px">
-                </div>
-                
-                <div class="time" id="time-display">00:00 / 00:00</div>
-                
-                <div style="flex:1"></div>
-                
-                <svg onclick="toggleFullscreen()" class="svg-icon" viewBox="0 0 24 24">
-                    <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 7v2h3v3h2V5h-5z"/>
-                </svg>
-            </div>
-        </div>
+<div class="container">
+    <h1>FilmBox Play - Generador</h1>
+    <p style="text-align:center; color:#888; margin-bottom:20px;">
+        Pega el embed de Audinifer, Streamwish, etc.
+    </p>
+    
+    <textarea id="embed-input" placeholder="https://audinifer.com/e/se6hsjirtr18"></textarea>
+    
+    <button onclick="generarReproductor()">GENERAR REPRODUCTOR</button>
+    
+    <div class="info">
+        <strong>Cómo funciona:</strong><br>
+        1. Pega el link del embed<br>
+        2. Presiona el botón<br>
+        3. Te dará un link directo al reproductor con tus controles minimalistas<br>
+        <br>
+        <strong>Nota:</strong> El reproductor se abre en una página limpia sin controles originales.
     </div>
 </div>
 
 <script>
-// ==================== CONFIGURACIÓN PARA TU EMBED ====================
-const embedUrl = "https://audinifer.com/e/se6hsjirtr18";
-
-let isPlaying = true;
-let isMuted = false;
-let volumeLevel = 1;
-let progressInterval = null;
-
-// Cargar el embed
-function loadEmbed() {
-    const iframe = document.getElementById('video-frame');
-    iframe.src = embedUrl;
+function generarReproductor() {
+    let url = document.getElementById('embed-input').value.trim();
     
-    // Evitamos errores de sandbox
-    iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation allow-forms allow-popups allow-modals');
-}
-
-function togglePlay() {
-    const btn = document.getElementById('play-btn');
-    isPlaying = !isPlaying;
-    
-    if (isPlaying) {
-        btn.innerHTML = `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>`; // pause
-    } else {
-        btn.innerHTML = `<path d="M8 5.14v14.72c0 .61.67.98 1.21.65l11.32-7.36c.5-.32.5-1.08 0-1.4L9.21 4.49C8.67 4.16 8 4.53 8 5.14z"/>`; // play
+    if (!url) {
+        alert("Por favor pega un embed válido");
+        return;
     }
     
-    try {
-        document.getElementById('video-frame').contentWindow.postMessage({cmd: isPlaying ? 'play' : 'pause'}, '*');
-    } catch(e) {}
+    // Codificamos la URL para pasarla por parámetro
+    let encodedUrl = encodeURIComponent(url);
+    let playerUrl = `player.html?url=${encodedUrl}`;
+    
+    // Abrimos directamente el reproductor (no el generador)
+    window.open(playerUrl, '_blank');
 }
-
-function toggleMute() {
-    isMuted = !isMuted;
-    const volBtn = document.getElementById('volume-btn');
-    const wave = document.getElementById('volume-wave');
-    
-    if (isMuted) {
-        wave.setAttribute('d', 'M16.5 7.5L19 10m0 0l2.5 2.5M19 10l2.5-2.5M19 10l-2.5 2.5');
-    } else {
-        wave.setAttribute('d', 'M16 9a4 4 0 0 1 0 6');
-    }
-    
-    document.getElementById('volume').value = isMuted ? 0 : volumeLevel;
-}
-
-document.getElementById('volume').addEventListener('input', (e) => {
-    volumeLevel = parseFloat(e.target.value);
-    if (volumeLevel > 0) isMuted = false;
-    
-    try {
-        document.getElementById('video-frame').contentWindow.postMessage({
-            cmd: 'volume',
-            value: volumeLevel
-        }, '*');
-    } catch(e) {}
-});
-
-function toggleFullscreen() {
-    const player = document.getElementById('custom-player');
-    if (!document.fullscreenElement) {
-        player.requestFullscreen().catch(() => {});
-    } else {
-        document.exitFullscreen();
-    }
-}
-
-// Barra de progreso simulada
-function startProgress() {
-    let percent = 0;
-    const progressBar = document.getElementById('progress');
-    const timeDisplay = document.getElementById('time-display');
-    
-    if (progressInterval) clearInterval(progressInterval);
-    
-    progressInterval = setInterval(() => {
-        percent = (percent + 0.6) % 100;
-        progressBar.style.width = percent + '%';
-        
-        let currentMin = Math.floor((percent / 100) * 7200);
-        let totalMin = 7200;
-        
-        let cMin = Math.floor(currentMin / 60);
-        let cSec = currentMin % 60;
-        let tMin = Math.floor(totalMin / 60);
-        let tSec = totalMin % 60;
-        
-        timeDisplay.textContent = 
-            `${cMin.toString().padStart(2,'0')}:${cSec.toString().padStart(2,'0')} / ` +
-            `${tMin.toString().padStart(2,'0')}:${tSec.toString().padStart(2,'0')}`;
-    }, 700);
-}
-
-// Click en barra de progreso
-document.getElementById('progress-bar').addEventListener('click', function(e) {
-    const rect = this.getBoundingClientRect();
-    const clickPercent = (e.clientX - rect.left) / rect.width;
-    document.getElementById('progress').style.width = (clickPercent * 100) + '%';
-});
-
-// Iniciar todo
-window.onload = () => {
-    loadEmbed();
-    startProgress();
-    
-    // Atajos de teclado
-    document.addEventListener('keydown', (e) => {
-        if (e.key === " " || e.key === "k" || e.key === "K") {
-            e.preventDefault();
-            togglePlay();
-        }
-        if (e.key === "f" || e.key === "F") {
-            toggleFullscreen();
-        }
-    });
-};
 </script>
 
 </body>
