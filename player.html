@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>FilmBox Play</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#000; overflow:hidden; height:100vh; }
+    
+    .player-wrapper {
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+        background: #000;
+    }
+    
+    #video-frame {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: block;
+    }
+    
+    .controls-overlay {
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        background: linear-gradient(transparent, rgba(0,0,0,0.92));
+        padding: 25px 35px 20px;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        z-index: 100;
+    }
+    
+    .player-wrapper:hover .controls-overlay { opacity: 1; }
+    
+    .progress-container {
+        height: 7px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 999px;
+        margin-bottom: 20px;
+        cursor: pointer;
+        position: relative;
+    }
+    
+    .progress {
+        height: 100%;
+        background: #00ff9d;
+        width: 0%;
+        border-radius: 999px;
+    }
+    
+    .controls {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        color: white;
+    }
+    
+    .svg-icon {
+        width: 28px;
+        height: 28px;
+        cursor: pointer;
+        fill: #eee;
+        transition: all 0.25s;
+    }
+    
+    .svg-icon:hover {
+        fill: #00ff9d;
+        transform: scale(1.15);
+    }
+    
+    .time {
+        font-family: monospace;
+        font-size: 14.5px;
+        color: #bbb;
+        min-width: 120px;
+    }
+    
+    .title-bar {
+        position: absolute;
+        top: 20px;
+        left: 30px;
+        background: rgba(0,0,0,0.7);
+        padding: 8px 18px;
+        border-radius: 8px;
+        font-size: 15px;
+        z-index: 200;
+        pointer-events: none;
+    }
+</style>
+</head>
+<body>
+
+<div class="player-wrapper">
+    <div class="title-bar" id="title">FilmBox Play</div>
+    <iframe id="video-frame" allowfullscreen allow="autoplay; encrypted-media; fullscreen"></iframe>
+    
+    <div class="controls-overlay">
+        <div class="progress-container" id="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        
+        <div class="controls">
+            <svg onclick="togglePlay()" id="play-icon" class="svg-icon" viewBox="0 0 24 24">
+                <path d="M8 5.14v14.72c0 .61.67.98 1.21.65l11.32-7.36c.5-.32.5-1.08 0-1.4L9.21 4.49C8.67 4.16 8 4.53 8 5.14z"/>
+            </svg>
+            
+            <svg onclick="toggleMute()" id="volume-icon" class="svg-icon" viewBox="0 0 24 24">
+                <path d="M3 9v6h4l5 5V4L7 9H3z"/>
+                <path d="M16 9a4 4 0 0 1 0 6" id="wave"/>
+            </svg>
+            
+            <input type="range" id="volume" min="0" max="1" step="0.01" value="1" style="width:110px">
+            
+            <div class="time" id="time">00:00 / 00:00</div>
+            
+            <div style="flex:1"></div>
+            
+            <svg onclick="toggleFullscreen()" class="svg-icon" viewBox="0 0 24 24">
+                <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 7v2h3v3h2V5h-5z"/>
+            </svg>
+        </div>
+    </div>
+</div>
+
+<script>
+// Leer el parámetro de la URL
+const params = new URLSearchParams(window.location.search);
+const embedUrl = params.get('url');
+
+if (!embedUrl) {
+    document.body.innerHTML = "<h1 style='color:red;text-align:center;margin-top:50px'>Error: No se recibió ningún embed</h1>";
+} else {
+    const decodedUrl = decodeURIComponent(embedUrl);
+    document.getElementById('video-frame').src = decodedUrl;
+    document.getElementById('title').textContent = "FilmBox Play - " + new URL(decodedUrl).hostname;
+}
+
+// Variables
+let isPlaying = true;
+let isMuted = false;
+let volumeLevel = 1;
+let progressInterval = null;
+
+// Controles
+function togglePlay() {
+    const icon = document.getElementById('play-icon');
+    isPlaying = !isPlaying;
+    
+    if (isPlaying) {
+        icon.innerHTML = `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>`;
+    } else {
+        icon.innerHTML = `<path d="M8 5.14v14.72c0 .61.67.98 1.21.65l11.32-7.36c.5-.32.5-1.08 0-1.4L9.21 4.49C8.67 4.16 8 4.53 8 5.14z"/>`;
+    }
+}
+
+function toggleMute() {
+    isMuted = !isMuted;
+    const wave = document.getElementById('wave');
+    if (isMuted) {
+        wave.setAttribute('d', 'M16.5 7.5L19 10m0 0l2.5 2.5M19 10l2.5-2.5M19 10l-2.5 2.5');
+    } else {
+        wave.setAttribute('d', 'M16 9a4 4 0 0 1 0 6');
+    }
+    document.getElementById('volume').value = isMuted ? 0 : volumeLevel;
+}
+
+document.getElementById('volume').addEventListener('input', (e) => {
+    volumeLevel = parseFloat(e.target.value);
+    isMuted = volumeLevel === 0;
+});
+
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    } else {
+        document.exitFullscreen();
+    }
+}
+
+// Barra de progreso simulada
+function startProgress() {
+    let p = 0;
+    const progress = document.getElementById('progress');
+    const timeEl = document.getElementById('time');
+    
+    if (progressInterval) clearInterval(progressInterval);
+    
+    progressInterval = setInterval(() => {
+        p = (p + 0.7) % 100;
+        progress.style.width = p + '%';
+        
+        let mins = Math.floor((p/100)*7200);
+        let total = 7200;
+        timeEl.textContent = 
+            `${Math.floor(mins/60).toString().padStart(2,'0')}:${(mins%60).toString().padStart(2,'0')} / ` +
+            `${Math.floor(total/60).toString().padStart(2,'0')}:${(total%60).toString().padStart(2,'0')}`;
+    }, 650);
+}
+
+// Click en progreso
+document.getElementById('progress-bar').addEventListener('click', (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const percent = ((e.clientX - rect.left) / rect.width) * 100;
+    document.getElementById('progress').style.width = percent + '%';
+});
+
+// Iniciar
+window.onload = () => {
+    startProgress();
+    
+    document.addEventListener('keydown', e => {
+        if (e.key === " " || e.key === "k") { e.preventDefault(); togglePlay(); }
+        if (e.key === "f" || e.key === "F") toggleFullscreen();
+    });
+};
+</script>
+
+</body>
+</html>
